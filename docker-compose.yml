@@ -1,12 +1,14 @@
 version: '3.8'
 
 services:
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: portfolio-laravel
     ports:
-      - "8000:80"
+      - "8086:80"
     env_file:
       - .env
     volumes:
@@ -14,25 +16,24 @@ services:
     depends_on:
       - db
     environment:
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_DATABASE=${DB_DATABASE:-laravel}
-      - DB_USERNAME=${DB_USERNAME:-sail}
-      - DB_PASSWORD=${DB_PASSWORD:-password}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-laravel}
+      DB_USERNAME: ${DB_USERNAME:-laravel}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
     restart: unless-stopped
 
   db:
     image: mysql:8.0
-    ports:
-      - "3306:3306"
+    container_name: portfolio-mysql
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-laravel}
-      MYSQL_USER: ${DB_USERNAME:-sail}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
       MYSQL_PASSWORD: ${DB_PASSWORD:-password}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
     volumes:
-      - db_data:/var/lib/mysql
+      - portfolio_db_data:/var/lib/mysql
     restart: unless-stopped
 
 volumes:
-  db_data:
+  portfolio_db_data:

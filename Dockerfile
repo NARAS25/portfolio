@@ -1,5 +1,25 @@
 # ==========================================
-# Stage 1 — Build Vue/Vite Assets
+# Stage 1 — Composer Dependencies
+# ==========================================
+FROM composer:2 AS vendor
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+RUN composer install \
+    --no-interaction \
+    --prefer-dist \
+    --ignore-platform-reqs \
+    --no-dev \
+    --no-scripts \
+    --no-autoloader
+
+COPY . .
+RUN composer dump-autoload --optimize --no-dev
+
+
+# ==========================================
+# Stage 2 — Build Vue/Vite Assets
 # ==========================================
 FROM node:20-alpine AS frontend
 
@@ -13,6 +33,9 @@ RUN npm ci
 
 # Copy source project
 COPY . .
+
+# Copy vendor dari stage 1 (dibutuhkan oleh ZiggyVue saat npm run build)
+COPY --from=vendor /app/vendor /app/vendor
 
 # Build Vue/Vite
 RUN npm run build
@@ -92,13 +115,9 @@ COPY --from=frontend /app/public/build /var/www/html/public/build
 
 
 # ==========================================
-# Install Laravel dependencies
+# Copy vendor from Composer stage
 # ==========================================
-RUN composer install \
-    --no-interaction \
-    --prefer-dist \
-    --optimize-autoloader \
-    --no-dev
+COPY --from=vendor /app/vendor /var/www/html/vendor
 
 
 # ==========================================

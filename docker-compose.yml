@@ -7,17 +7,18 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:80"
+    env_file:
+      - .env
     volumes:
-      - ./.env:/var/www/html/.env
       - ./storage:/var/www/html/storage
     depends_on:
       - db
     environment:
       - DB_HOST=db
       - DB_PORT=3306
-      - DB_DATABASE=laravel
-      - DB_USERNAME=sail
-      - DB_PASSWORD=password
+      - DB_DATABASE=${DB_DATABASE:-laravel}
+      - DB_USERNAME=${DB_USERNAME:-sail}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
     restart: unless-stopped
 
   db:
@@ -25,10 +26,10 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: sail
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+      MYSQL_USER: ${DB_USERNAME:-sail}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-password}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password}
     volumes:
       - db_data:/var/lib/mysql
     restart: unless-stopped

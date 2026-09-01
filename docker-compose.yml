@@ -6,41 +6,52 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+
     container_name: portfolio-laravel
+
     ports:
       - "8086:80"
+
     environment:
-      APP_NAME: ${APP_NAME:-Portfolio}
-      APP_ENV: ${APP_ENV:-production}
+      # PENTING: APP_KEY wajib ada agar Laravel tidak error 500
       APP_KEY: ${APP_KEY}
-      APP_DEBUG: ${APP_DEBUG:-false}
-      APP_URL: ${APP_URL:-http://localhost}
-      LOG_CHANNEL: stderr
+      APP_ENV: production
+      APP_DEBUG: "false"
+
       DB_CONNECTION: mysql
+      # Menggunakan container_name agar tidak terjadi error DNS resolution
       DB_HOST: portfolio-mysql
       DB_PORT: 3306
-      DB_DATABASE: ${DB_DATABASE:-laravel}
-      DB_USERNAME: ${DB_USERNAME:-laravel}
-      DB_PASSWORD: ${DB_PASSWORD:-password}
-      SESSION_DRIVER: database
-      CACHE_STORE: database
+      DB_DATABASE: laravel
+      DB_USERNAME: laravel
+      DB_PASSWORD: laravelpassword
+
     volumes:
-      - ./storage:/var/www/html/storage
+      - portfolio_storage:/var/www/html/storage
+
     depends_on:
       - db
+
     restart: unless-stopped
+
 
   db:
     image: mysql:8.0
+
     container_name: portfolio-mysql
+
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
-      MYSQL_USER: ${DB_USERNAME:-laravel}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-password}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravelpassword
+      MYSQL_ROOT_PASSWORD: rootpassword
+
     volumes:
       - portfolio_db_data:/var/lib/mysql
+
     restart: unless-stopped
 
+
 volumes:
+  portfolio_storage:
   portfolio_db_data:
